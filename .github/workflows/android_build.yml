@@ -1,0 +1,61 @@
+name: Android Build
+
+on:
+  release:
+    types: [created]
+
+env:
+  NDK_VERSION: 27.0.12077973
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
+        targets: aarch64-linux-android, x86_64-linux-android
+
+    - name: Install Android NDK
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y openjdk-17-jdk
+        wget https://dl.google.com/android/repository/android-ndk-r${{ env.NDK_VERSION }}-linux.zip
+        unzip -q android-ndk-r${{ env.NDK_VERSION }}-linux.zip
+        echo "NDK_HOME=$(pwd)/android-ndk-r${{ env.NDK_VERSION }}" >> $GITHUB_ENV
+        echo "PATH=$NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH" >> $GITHUB_ENV
+
+    - name: Configure Cargo for Android
+      run: |
+        mkdir -p .cargo
+        cat > .cargo/config.toml << 'EOF'
+        [target.aarch64-linux-android]
+        linker = "${{ env.NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang"
+
+        [target.x86_64-linux-android]
+        linker = "${{ env.NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android26-clang"
+        EOF
+
+    - name: Build aarch64 binary
+      run: cargo build --target aarch64-linux-android --example sample-litmus-server
+
+    - name: Build x86_64 binary
+      run: cargo build --target x86_64-linux-android --example sample-litmus-server
+
+    - name: Rename binaries
+      run: |
+        mv target/aarch64-linux-android/debug/examples/sample-litmus-server ./webdav-server-aarch64
+        mv target/x86_64-linux-android/debug/examples/sample-litmus-server ./webdav-server-x86_64
+
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        files: |
+          webdav-server-aarch64
+          webdav-server-x86_64

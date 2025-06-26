@@ -5,7 +5,7 @@ on:
     types: [created]
 
 env:
-  NDK_VERSION: 27.0.12077973
+  NDK_VERSION: r27c
 
 jobs:
   build:
@@ -22,13 +22,9 @@ jobs:
         targets: aarch64-linux-android, x86_64-linux-android
 
     - name: Install Android NDK
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y openjdk-17-jdk
-        wget https://dl.google.com/android/repository/android-ndk-r${{ env.NDK_VERSION }}-linux.zip
-        unzip -q android-ndk-r${{ env.NDK_VERSION }}-linux.zip
-        echo "NDK_HOME=$(pwd)/android-ndk-r${{ env.NDK_VERSION }}" >> $GITHUB_ENV
-        echo "PATH=$NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH" >> $GITHUB_ENV
+      uses: nttld/setup-ndk@v1
+      with:
+        ndk-version: ${{ env.NDK_VERSION }}
 
     - name: Configure Cargo for Android
       run: |

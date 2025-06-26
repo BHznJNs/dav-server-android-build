@@ -4,3 +4,4 @@ Cargo.lock
 .vscode
 src/xml
 .idea
+.cargo

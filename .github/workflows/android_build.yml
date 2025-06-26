@@ -40,20 +40,28 @@ jobs:
         EOF
 
     - name: Build aarch64 binary
-      run: cargo build --target aarch64-linux-android --example sample-litmus-server
+      run: |
+        cargo build --target aarch64-linux-android --example sample-litmus-server
+        cargo build --target aarch64-linux-android --example sample-litmus-server --release
 
     - name: Build x86_64 binary
-      run: cargo build --target x86_64-linux-android --example sample-litmus-server
+      run: |
+        cargo build --target x86_64-linux-android --example sample-litmus-server
+        cargo build --target x86_64-linux-android --example sample-litmus-server --release
 
     - name: Rename binaries
       run: |
-        mv target/aarch64-linux-android/debug/examples/sample-litmus-server ./webdav-server-aarch64
-        mv target/x86_64-linux-android/debug/examples/sample-litmus-server ./webdav-server-x86_64
+        mv target/aarch64-linux-android/debug/examples/sample-litmus-server ./webdav-server-debug-aarch64
+        mv target/aarch64-linux-android/release/examples/sample-litmus-server ./webdav-server-release-aarch64
+        mv target/x86_64-linux-android/debug/examples/sample-litmus-server ./webdav-server-debug-x86_64
+        mv target/x86_64-linux-android/release/examples/sample-litmus-server ./webdav-server-release-x86_64
 
     - name: Release
       uses: softprops/action-gh-release@v2
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         files: |
-          webdav-server-aarch64
-          webdav-server-x86_64
+          webdav-server-debug-aarch64
+          webdav-server-debug-x86_64
+          webdav-server-release-aarch64
+          webdav-server-release-x86_64

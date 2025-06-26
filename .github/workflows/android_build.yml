@@ -22,19 +22,21 @@ jobs:
         targets: aarch64-linux-android, x86_64-linux-android
 
     - name: Install Android NDK
+      id: setup-ndk
       uses: nttld/setup-ndk@v1
       with:
         ndk-version: ${{ env.NDK_VERSION }}
+        add-to-path: false
 
     - name: Configure Cargo for Android
       run: |
         mkdir -p .cargo
         cat > .cargo/config.toml << 'EOF'
         [target.aarch64-linux-android]
-        linker = "${{ env.NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang"
+        linker = "${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android26-clang"
 
         [target.x86_64-linux-android]
-        linker = "${{ env.NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android26-clang"
+        linker = "${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android26-clang"
         EOF
 
     - name: Build aarch64 binary

@@ -4,4 +4,4 @@ This repository provides pre-built Android binaries for the `sample-litmus-serve
 
 ## How to Obtain the Android Builds
 
-The pre-built binaries are available in the [releases](./releases). 
+The pre-built binaries are available in the [releases](https://github.com/BHznJNs/dav-server-android-build/releases). 
